@@ -49,6 +49,7 @@ Look into your installation folder *\Engine\Plugins\MovieScene\SequencerScriptin
 * *Substitute_assets_with_consolidate_assets.py* : replace material and consolidate.
 
 ## Miscellaneous
+* *ExamplePythonMenus.py* : Adds custom menus in main toolbar, on right-click actions on assets, in custom editor window such as texture editor window menu.
 * *Register_your_python_code_to_run_at_a_later_time.py* : execute python callback on pre tick.
 * *TakeHighResScreenshot_from_all_cam.py* : demonstrate how to break down screenshot capture and perform them on tick.
 * *tick_in_python.py* : demonstrate how to break down some work and perform it on tick.
