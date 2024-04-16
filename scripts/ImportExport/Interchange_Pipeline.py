@@ -34,7 +34,7 @@ class MyProjectPythonPipeline(unreal.InterchangePythonPipelineBase):
             self.recursive_set_node_properties(base_node_container, child_uid)
 
     @unreal.ufunction(override=True)
-    def scripted_execute_pipeline(self, base_node_container, in_source_datas):
+    def scripted_execute_pipeline(self, base_node_container, in_source_datas, content_base_path):
         if not self.configure_texture_from_name_suffix:
             return
         root_nodes = base_node_container.get_roots()

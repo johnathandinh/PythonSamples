@@ -38,7 +38,9 @@ class PyTick():
             raise
 
 def take_all_cam_screenshots():
-    level_actors = unreal.EditorLevelLibrary.get_all_level_actors()
+    
+    actorSubsystem = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
+    level_actors = actorSubsystem.get_all_level_actors()
     all_cameras = unreal.EditorFilterLibrary.by_class(
         level_actors,
         unreal.CameraActor

@@ -47,8 +47,8 @@ else:
 bCleanPackageVariant = True
 
 # This need to be dynamic directory, '/' should be at the end of content_output
-content_output = "/Game/Reid/DG_Variant_Test_for_UE/Materials/"
-LevelVariantSets_output = "/Game/Reid/DG_Variant_Test_for_UE/Variants/"
+content_output = "/Game/Create/MaterialsVariants/"
+LevelVariantSets_output = "/Game/Create/Variants/"
 
 xml_data = ""
 with open(var_file, "r", encoding='utf-8-sig') as file:
@@ -65,14 +65,15 @@ if rttDocument.tag != 'rttDocument':
 	print('parse error: first node is not <rttDocument>')
 
 var_file_variant_sets_dict = getVariantSetsAndVariantFromFile()
+assetSubsystem = unreal.get_editor_subsystem(unreal.EditorAssetSubsystem)
 
-if not unreal.EditorAssetLibrary.does_asset_exist(LevelVariantSets_output+'LevelVariantSets.LevelVariantSets'):
+if not assetSubsystem.does_asset_exist(LevelVariantSets_output+'LevelVariantSets'):
 	# create a new level variant set 
 	#lvs = unreal.VariantManagerLibrary.create_level_variant_sets_asset('LookVariants', LevelVariantSets_output)
 	lvs = unreal.VariantManagerLibrary.create_level_variant_sets_asset('LevelVariantSets', LevelVariantSets_output)
 else:
 	# use existing level variant set
-	lvs = unreal.EditorAssetLibrary.load_asset(LevelVariantSets_output+'LevelVariantSets.LevelVariantSets')
+	lvs = assetSubsystem.load_asset(LevelVariantSets_output+'LevelVariantSets')
 
 lvs_num_variant_set = lvs.get_num_variant_sets()
 lvs_variant_set_names = dict()
@@ -159,7 +160,7 @@ for variant_switch in rttDocument.findall('./ProductAspects/AspectContainer/Aspe
 								lvs_current_variant.remove_actor_binding_by_name(a)
 						lvs_current_variant.add_dependency(dependency)
 				ind = ind + 1
-unreal.EditorAssetLibrary.save_loaded_asset(lvs)
+assetSubsystem.save_loaded_asset(lvs)
 
 # clean references to lvs
 lvs_variant_set_names.clear()

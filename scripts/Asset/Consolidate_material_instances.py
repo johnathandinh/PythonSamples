@@ -1,15 +1,17 @@
-from unreal import EditorAssetLibrary, MaterialInstanceConstant
+import unreal
+from unreal import MaterialInstanceConstant
  
 # consolidate together Material Instances assets having the same name
 # WARNING: will erase consolidated assets
  
 # retrieves all assets from the directory and its sub directories
-all_asset_names = EditorAssetLibrary.list_assets("/Game/Test/", True, False)
+asset_subsys = unreal.get_editor_subsystem(unreal.EditorAssetSubsystem)
+all_asset_names = asset_subsys.list_assets("/Game/Test/", True, False)
  
 # loads all assets of the MaterialInstanceConstant class
 material_assets = []
 for asset_name in all_asset_names:
-    loaded_asset = EditorAssetLibrary.load_asset(asset_name)
+    loaded_asset = asset_subsys.load_asset(asset_name)
     if loaded_asset.__class__ == MaterialInstanceConstant:
         material_assets.append(loaded_asset)
  
@@ -25,7 +27,7 @@ for i in range(0, len(material_assets)):
 for asset_name, assets_ids in asset_consolidation.items():
     if len(assets_ids) < 2:
         continue
-    EditorAssetLibrary.consolidate_assets(material_assets[assets_ids[0]], [material_assets[i] for i in assets_ids[1:]])
+    asset_subsys.consolidate_assets(material_assets[assets_ids[0]], [material_assets[i] for i in assets_ids[1:]])
  
 # Need to fixup redirectors after that, though it's not accessible from Python
 # UAssetTools::FixupReferencers not exposed as of 4.26

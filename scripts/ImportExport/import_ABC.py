@@ -20,7 +20,7 @@ def set_alembic_import_settings():
  
 # Hard-coded paths
 abc_file = "C:/temp/my_alembic.abc"
-import_path = "/Game/ABC_Testing/"
+import_path = "/Game/Create/ABC_Testing/"
  
 # Calling functions to make the import task and set it's settings for our Alembic File
 abc_import_task = make_alembic_import_task(abc_file, import_path, True)

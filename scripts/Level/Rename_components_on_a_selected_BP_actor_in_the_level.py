@@ -1,6 +1,7 @@
 import unreal
- 
-actors = unreal.EditorLevelLibrary.get_selected_level_actors()
+
+actorSubsystem = unreal.get_editor_subsystem(unreal.EditorActorSubsystem) 
+actors = actorSubsystem.get_selected_level_actors()
  
 for actor in actors:
     sm_comps = actor.get_components_by_class(unreal.StaticMeshComponent)

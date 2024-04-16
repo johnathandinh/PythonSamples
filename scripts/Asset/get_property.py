@@ -1,6 +1,7 @@
 import unreal
 
-level_actors = unreal.EditorLevelLibrary.get_all_level_actors()
+actor_subsys = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
+level_actors = actor_subsys.get_all_level_actors()
 filtered_list = unreal.EditorFilterLibrary.by_actor_label(
     level_actors,
     "my_actor",

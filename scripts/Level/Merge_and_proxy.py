@@ -1,19 +1,22 @@
-from unreal import (EditorLevelLibrary, EditorScriptingMergeStaticMeshActorsOptions,
-    EditorScriptingCreateProxyMeshActorOptions, MeshLODSelectionType,
-    EditorStaticMeshLibrary, ScopedSlowTask, EditorAssetLibrary, StaticMeshActor)
+import unreal
+from unreal import (MeshLODSelectionType, ScopedSlowTask, StaticMeshActor)
  
 # progress bar
 with ScopedSlowTask(4, "Create proxy LOD") as slow_task:
     slow_task.make_dialog(True)
     slow_task.enter_progress_frame(1)
+
+    actorSubsystem = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
+    assetSubsystem = unreal.get_editor_subsystem(unreal.EditorAssetSubsystem)
+    staticMeshSubsystem = unreal.get_editor_subsystem(unreal.StaticMeshEditorSubsystem)
      
-    level_actors = EditorLevelLibrary.get_selected_level_actors()
+    level_actors = actorSubsystem.get_selected_level_actors()
     actors_to_merge = [a for a in level_actors if a.__class__ == StaticMeshActor]
  
     slow_task.enter_progress_frame(1)
     # set the merge options
-    merge_options = EditorScriptingMergeStaticMeshActorsOptions()
-    merge_options.base_package_name = "/Game/SM_Merged"
+    merge_options = unreal.MergeStaticMeshActorsOptions()
+    merge_options.base_package_name = "/Game/Create/SM_Merged"
     merge_options.destroy_source_actors = False
     merge_options.new_actor_label = "Merged Actor"
     merge_options.spawn_merged_actor = True
@@ -24,17 +27,16 @@ with ScopedSlowTask(4, "Create proxy LOD") as slow_task:
     merge_options.mesh_merging_settings.merge_physics_data = True
     merge_options.mesh_merging_settings.pivot_point_at_zero = True
     # merge meshes actors and retrieve spawned actor
-    merged_actor = EditorLevelLibrary.merge_static_mesh_actors(actors_to_merge, merge_options)
+    merged_actor = staticMeshSubsystem.merge_static_mesh_actors(actors_to_merge, merge_options)
     merged_mesh = merged_actor.static_mesh_component.static_mesh
  
     slow_task.enter_progress_frame(1)
     # set the proxy options
-    proxy_option = EditorScriptingCreateProxyMeshActorOptions()
-    proxy_option.base_package_name = "/Game/SM_Proxy"
+    proxy_option = unreal.CreateProxyMeshActorOptions()
+    proxy_option.base_package_name = "/Game/Create/SM_Proxy"
     proxy_option.destroy_source_actors = False
     proxy_option.new_actor_label = "Proxy Actor"
     proxy_option.spawn_merged_actor = True
-    proxy_option.mesh_proxy_settings.allow_adjacency = False
     proxy_option.mesh_proxy_settings.allow_distance_field = False
     proxy_option.mesh_proxy_settings.allow_vertex_colors = False
     proxy_option.mesh_proxy_settings.calculate_correct_lod_model = False
@@ -43,7 +45,7 @@ with ScopedSlowTask(4, "Create proxy LOD") as slow_task:
     proxy_option.mesh_proxy_settings.generate_lightmap_u_vs = False
     proxy_option.mesh_proxy_settings.hard_angle_threshold = 89
     # increased normal texture size to capture more details
-    proxy_option.mesh_proxy_settings.material_settings.texture_size = (2048, 2048)
+    proxy_option.mesh_proxy_settings.material_settings.diffuse_texture_size = (2048, 2048)
     proxy_option.mesh_proxy_settings.max_ray_cast_dist = 10.0
     proxy_option.mesh_proxy_settings.merge_distance = 1.0
     proxy_option.mesh_proxy_settings.override_transfer_distance = True
@@ -55,13 +57,13 @@ with ScopedSlowTask(4, "Create proxy LOD") as slow_task:
     proxy_option.mesh_proxy_settings.use_hard_angle_threshold = True
     proxy_option.mesh_proxy_settings.voxel_size = 0.5
     # create proxy and retrieve spawned actor
-    proxy_actor = EditorLevelLibrary.create_proxy_mesh_actor(actors_to_merge, proxy_option)
+    proxy_actor = staticMeshSubsystem.create_proxy_mesh_actor(actors_to_merge, proxy_option)
     proxy_mesh = proxy_actor.static_mesh_component.static_mesh
-    EditorLevelLibrary.destroy_actor(proxy_actor)
+    actorSubsystem.destroy_actor(proxy_actor)
  
     slow_task.enter_progress_frame(1)
     for actor in level_actors:
-        EditorLevelLibrary.destroy_actor(actor)
+        actorSubsystem.destroy_actor(actor)
  
-    EditorStaticMeshLibrary.set_lod_from_static_mesh(merged_mesh, 1, proxy_mesh, 0, True)
-    EditorAssetLibrary.delete_loaded_asset(proxy_mesh)
+    staticMeshSubsystem.set_lod_from_static_mesh(merged_mesh, 1, proxy_mesh, 0, True)
+    assetSubsystem.delete_loaded_asset(proxy_mesh)

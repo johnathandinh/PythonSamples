@@ -5,7 +5,8 @@ def get_asset_from_path(path):
     return unreal.load_asset(path)
      
 def get_path_from_asset(asset):
-    fullpath = unreal.EditorAssetLibrary.get_path_name_for_loaded_asset(asset)
+    assetSubsystem = unreal.get_editor_subsystem(unreal.EditorAssetSubsystem)
+    fullpath = assetSubsystem.get_path_name_for_loaded_asset(asset)
     index = fullpath.find(".")
     return fullpath[:index]
      
@@ -27,7 +28,8 @@ def create_blueprint(asset_fullpath):
         factory.set_editor_property("ParentClass", unreal.Actor)
         asset_tools = unreal.AssetToolsHelpers.get_asset_tools()
         my_new_asset = asset_tools.create_asset(asset_name, package_path, None, factory)
-        unreal.EditorAssetLibrary.save_loaded_asset(my_new_asset)
+        assetSubsystem = unreal.get_editor_subsystem(unreal.EditorAssetSubsystem)
+        assetSubsystem.save_loaded_asset(my_new_asset)
     return my_new_asset
  
 def create_material(asset_fullpath):
@@ -39,7 +41,8 @@ def create_material(asset_fullpath):
         asset_tools = unreal.AssetToolsHelpers.get_asset_tools()
         factory = unreal.MaterialFactoryNew()
         my_new_asset = asset_tools.create_asset(asset_name, package_path, None, factory)
-        unreal.EditorAssetLibrary.save_loaded_asset(my_new_asset)
+        assetSubsystem = unreal.get_editor_subsystem(unreal.EditorAssetSubsystem)
+        assetSubsystem.save_loaded_asset(my_new_asset)
         return my_new_asset
      
 def create_material_instance(asset_fullpath):
@@ -51,7 +54,8 @@ def create_material_instance(asset_fullpath):
         factory = unreal.MaterialInstanceConstantFactoryNew()
         asset_tools = unreal.AssetToolsHelpers.get_asset_tools()
         my_new_asset = asset_tools.create_asset(asset_name, package_path, None, factory)
-        unreal.EditorAssetLibrary.save_loaded_asset(my_new_asset)
+        assetSubsystem = unreal.get_editor_subsystem(unreal.EditorAssetSubsystem)
+        assetSubsystem.save_loaded_asset(my_new_asset)
         return my_new_asset
      
 def set_material_instance_parent(mic_asset, parent_material_asset):
@@ -93,42 +97,42 @@ def move_rename_asset(source_fullpath, destination_fullpath):
 # Runtime
  
 # import a texture
-asset_filepath = "C:/Temp/MI_Pathway_Normal.png"
-asset_destination_fullpath = "/Game/TestFolder/normal_ref"
+asset_filepath = "C:/Temp/Texture_Normal.png"
+asset_destination_fullpath = "/Game/Create/normal_ref"
 import_asset(asset_filepath, asset_destination_fullpath)
  
 # move and rename an asset
-source_fullpath = "/Game/TestFolder/normal_ref"
-destination_fullpath = "/Game/TestFolder2/normal_ref123"
+source_fullpath = "/Game/Create/normal_ref"
+destination_fullpath = "/Game/Create2/normal_ref123"
 move_rename_asset(source_fullpath, destination_fullpath)
  
 #--------------------------------------------------------
 # Create a Material
-mat_fullpath = "/Game/TestFolder/M_Test_00"
+mat_fullpath = "/Game/Create/M_Test_00"
 new_mat_asset = create_material(mat_fullpath)
 print(new_mat_asset)
  
 # Create a Material Instance
-mic_fullpath = "/Game/TestFolder/MIC_Test_00"
+mic_fullpath = "/Game/Create/MIC_Test_00"
 new_mic_asset = create_material_instance(mic_fullpath)
 print(new_mic_asset)
  
 #--------------------------------------------------------
 # Set Material Instance parent material
-mic_asset = get_asset_from_path("/Game/TestFolder/MIC_Test_00")
-parent_material_asset = get_asset_from_path("/Game/MyContentFolder/MyMaterialTest_01")
+mic_asset = get_asset_from_path("/Game/Create/MIC_Test_00")
+parent_material_asset = get_asset_from_path("/Game/Materials/M_MyMaterialTest_01")
 set_material_instance_parent(mic_asset, parent_material_asset)
  
 # Set Material Instance scalar parameter
-mic_asset = get_asset_from_path("/Game/TestFolder/MIC_Test_00")
+mic_asset = get_asset_from_path("/Game/Create/MIC_Test_00")
 set_material_instance_param(mic_asset, "myscale", 34.0)
  
 # Set Material Instance texture parameter
-mic_asset = get_asset_from_path("/Game/TestFolder/MIC_Test_00")
+mic_asset = get_asset_from_path("/Game/Create/MIC_Test_00")
 texture_asset = get_asset_from_path('/Engine/EngineResources/AICON-Green')
 set_material_instance_param(mic_asset, "mytexture", texture_asset)
  
 # Set Material Instance vector parameter
-mic_asset = get_asset_from_path("/Game/TestFolder/MIC_Test_00")
+mic_asset = get_asset_from_path("/Game/Create/MIC_Test_00")
 vector = unreal.LinearColor(1,2,3,1)
 set_material_instance_param(mic_asset, "mycolor", vector)

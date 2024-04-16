@@ -1,6 +1,7 @@
 import unreal
- 
-gl_level_actors = unreal.EditorLevelLibrary.get_all_level_actors()
+
+actorSubsystem = unreal.get_editor_subsystem(unreal.EditorActorSubsystem) 
+gl_level_actors = actorSubsystem.get_all_level_actors()
  
  
 def getActor(actorName):

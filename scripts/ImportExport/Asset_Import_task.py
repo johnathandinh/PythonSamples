@@ -4,15 +4,16 @@ import glob
  
  
 # Import additional ies files assets to tests other file types.
-asset_path_to_change = os.path.join('C:/','IES_Types')
+asset_path_to_change = os.path.join('C:/temp/','IES_Types')
  
 # Listing all .ies files in folder
 # Folder where files are located
 files = glob.glob(asset_path_to_change+os.sep+'*.ies')
  
 # Create folder in UE
-light_directory_name =  '/Game/add_ies_types'
-destination_path = unreal.EditorAssetLibrary.make_directory(light_directory_name)
+light_directory_name =  '/Game/Create/add_ies_types'
+assetSubsystem = unreal.get_editor_subsystem(unreal.EditorAssetSubsystem)
+destination_path = assetSubsystem.make_directory(light_directory_name)
  
 # Import all files
 for f in files:

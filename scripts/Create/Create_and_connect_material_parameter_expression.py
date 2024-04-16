@@ -1,9 +1,11 @@
 
 import unreal
- 
+
+assetSubsystem = unreal.get_editor_subsystem(unreal.EditorAssetSubsystem)
+
 #load the material asset and the material parameter collection asset from content folder
-materialTest = unreal.EditorAssetLibrary.load_asset('/game/Test/MAT_1')
-materialParameterCollectionTest = unreal.EditorAssetLibrary.load_asset('/game/Test/MPC_1')
+materialTest = assetSubsystem.load_asset('/game/Create/MAT_1')
+materialParameterCollectionTest = assetSubsystem.load_asset('/game/Create/MPC_1')
  
  
 #create a material expression of type MaterialExpressionCollectionParameter
@@ -18,6 +20,6 @@ unreal.MaterialEditingLibrary.connect_material_property(mecpc, '', unreal.Materi
 #recompile material
 unreal.MaterialEditingLibrary.recompile_material(materialTest)
 #save the material
-unreal.EditorAssetLibrary.save_loaded_asset(materialTest, True)
+assetSubsystem.save_loaded_asset(materialTest, True)
  
  

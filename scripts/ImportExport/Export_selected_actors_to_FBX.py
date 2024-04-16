@@ -6,8 +6,9 @@ import unreal
 # which leads to different behaviors on different sessions... you may or may not get your hierarchy in the FBX...
  
 output_file = 'C:\\Temp\\ue4_output.fbx'
- 
-selected_actors = unreal.EditorLevelLibrary.get_selected_level_actors()
+
+actorSubsystem = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
+selected_actors = actorSubsystem.get_selected_level_actors()
 if len(selected_actors) == 0:
     print("No actor selected, nothing to export")
     quit()

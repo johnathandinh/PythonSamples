@@ -4,6 +4,9 @@ import unreal
 # to generate the LODs of the static meshes.
 # THIS IS NOT OPTIMIZED (many file IO)
  
+actorSubsystem = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
+staticmeshsubsystem = unreal.get_editor_subsystem(unreal.StaticMeshEditorSubsystem)
+
 input_file = 'C:/Temp/CAD/Clutch assembly.SLDASM'
  
 content_folder = '/Game/'
@@ -12,7 +15,7 @@ content_folder = '/Game/'
 num_lods = 3
  
 # tessellation settings for LOD0
-base_settings = [0.1, 100.0, 15.0]
+base_settings = [0.01, 10.0, 15.0]
  
 # will hold all meshes LODs, by mesh name
 meshes_lods = {}
@@ -70,7 +73,7 @@ for lod_index in range(num_lods):
                 static_mesh.set_material(i, materials[material_interface.get_name()])
         # delete actors in level
         for actor in result.imported_actors:
-            unreal.EditorLevelLibrary.destroy_actor(actor)
+            actorSubsystem.destroy_actor(actor)
         # could also delete material instances...
  
 # set LODs for meshes
@@ -78,4 +81,4 @@ for name, meshes in meshes_lods.items():
     base_mesh = meshes[0]
     for lod_index in range(1,num_lods):
         lod_mesh = meshes[lod_index]
-        unreal.EditorStaticMeshLibrary.set_lod_from_static_mesh(base_mesh, lod_index, lod_mesh, 0, True)
+        staticmeshsubsystem.set_lod_from_static_mesh(base_mesh, lod_index, lod_mesh, 0, True)

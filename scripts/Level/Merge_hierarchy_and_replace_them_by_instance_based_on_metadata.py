@@ -2,7 +2,7 @@ import re
 import unreal
 
 # content folder where to put merged geometry
-content_folder = "/Game/Test_MergeComponents/"
+content_folder = "/Game/Create/Test_MergeComponents/"
 
 # utility function to get the full hierarchy of an actor
 def get_actor_hierarchy(actor):
@@ -17,7 +17,9 @@ def get_actor_hierarchy(actor):
 
 
 # retrieves all Actor in levels having the SU.GUID.XXXX tag
-level_actors = unreal.EditorLevelLibrary.get_all_level_actors()
+actorSubsystem = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
+staticMeshSubsystem = unreal.get_editor_subsystem(unreal.StaticMeshEditorSubsystem)
+level_actors = actorSubsystem.get_all_level_actors()
 guid_actors = {}
 for actor in level_actors:
     tags = [str(tag) for tag in actor.tags if str(tag).startswith('SU.GUID.')]
@@ -65,7 +67,7 @@ for guid, actors in guid_actors.items():
             actors_to_delete = [a for a in [old_actor] + get_actor_hierarchy(old_actor) if a.__class__ != unreal.StaticMeshActor]
             for delete_actor in actors_to_delete:
                 print("deleting actor " + delete_actor.get_actor_label())
-                unreal.EditorLevelLibrary.destroy_actor(delete_actor)
+                actorSubsystem.destroy_actor(delete_actor)
         continue
 
     print("merging all static meshes under " + actor.get_actor_label())
@@ -76,7 +78,7 @@ for guid, actors in guid_actors.items():
     new_path_name = content_folder + cleaned_actor_name
     print("new path name " + new_path_name)
 
-    merge_options = unreal.EditorScriptingMergeStaticMeshActorsOptions()
+    merge_options = unreal.MergeStaticMeshActorsOptions()
     merge_options.base_package_name = new_path_name
     merge_options.destroy_source_actors = False
     merge_options.mesh_merging_settings.bake_vertex_data_to_mesh = False
@@ -97,7 +99,8 @@ for guid, actors in guid_actors.items():
     merge_options.spawn_merged_actor = True
 
     # merge and retrieve first instance
-    merged_actor = unreal.EditorLevelLibrary.merge_static_mesh_actors(actors_to_merge, merge_options)
+    merged_actor = staticMeshSubsystem.merge_static_mesh_actors(actors_to_merge, merge_options)
+    merged_actor.root_component.set_editor_property("mobility", unreal.ComponentMobility.MOVABLE)
     merged_actor.set_actor_transform(backup_transform, False, False)
     merged_mesh = merged_actor.static_mesh_component.static_mesh
 
@@ -106,13 +109,14 @@ for guid, actors in guid_actors.items():
         if old_actor == actor:
             new_actor = merged_actor
         else:
-            new_actor = unreal.EditorLevelLibrary.spawn_actor_from_class(unreal.StaticMeshActor, unreal.Vector(0, 0, 0), unreal.Rotator(0, 0, 0))
+            new_actor = actorSubsystem.spawn_actor_from_class(unreal.StaticMeshActor, unreal.Vector(0, 0, 0), unreal.Rotator(0, 0, 0))
             new_actor.set_actor_transform(old_actor.get_actor_transform(), False, False)
             new_actor.static_mesh_component.set_static_mesh(merged_mesh)
+            new_actor.root_component.set_editor_property("mobility", unreal.ComponentMobility.MOVABLE)
         new_actor.set_actor_label(old_actor.get_actor_label())
         new_actor.attach_to_actor(old_actor.get_attach_parent_actor(), unreal.Name(), unreal.AttachmentRule.KEEP_WORLD, unreal.AttachmentRule.KEEP_WORLD, unreal.AttachmentRule.KEEP_WORLD, False)
         # delete unnecessary nodes
         actors_to_delete = [a for a in [old_actor] + get_actor_hierarchy(old_actor)]
         for delete_actor in actors_to_delete:
             print("deleting actor " + delete_actor.get_actor_label())
-            unreal.EditorLevelLibrary.destroy_actor(delete_actor)
+            actorSubsystem.destroy_actor(delete_actor)

@@ -3,7 +3,7 @@ import unreal
  
 ##### Replace RPC assets
  
-rpc_replacement_asset = '/Game/MultiUserViewer/Meshes/Tree/HillTree_02.HillTree_02'
+rpc_replacement_asset = '/Game/MultiUserViewer/Meshes/Tree/HillTree_02'
 rpcs_to_replace = [
 'Hawthorn',
 'Honey_Locust',
@@ -13,12 +13,14 @@ rpcs_to_replace = [
 'Red_Maple',
 'Scarlet_Oak'
 ]
- 
-all_actor_components = unreal.EditorLevelLibrary.get_all_level_actors_components()
-loaded_asset = unreal.EditorAssetLibrary.load_asset(rpc_replacement_asset)
+
+actorSubsystem = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
+assetSubsystem = unreal.get_editor_subsystem(unreal.EditorAssetSubsystem)
+all_actor_components = actorSubsystem.get_all_level_actors_components()
+loaded_asset = assetSubsystem.load_asset(rpc_replacement_asset)
 for component in all_actor_components:
     if component.component_has_tag("Revit.RPC"):
-        actor_name = component.get_owner().get_name()
+        actor_name = component.get_owner().get_actor_label()
         print("Found an RPC component: " + actor_name)
         for replacement_key in rpcs_to_replace:
             if (actor_name.startswith(replacement_key)):
@@ -28,7 +30,8 @@ for component in all_actor_components:
                 # randomize the rotation
                 spawn_rotation.yaw = unreal.MathLibrary.random_float_in_range(0,360)
                 # spawn the actor
-                new_actor = unreal.EditorLevelLibrary.spawn_actor_from_object(loaded_asset, spawn_location, spawn_rotation)
+                new_actor = actorSubsystem.spawn_actor_from_object(loaded_asset, spawn_location, spawn_rotation)
+                new_actor.root_component.set_editor_property("mobility", unreal.ComponentMobility.MOVABLE)
                 # randomize its scale factor
                 scale_factor = unreal.MathLibrary.random_float_in_range(0.75,1.25)
                 world_scale = new_actor.get_actor_scale3d()

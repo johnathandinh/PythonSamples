@@ -18,8 +18,8 @@ else:
 	
 
 # This need to be dynamic directory, '/' should be at the end of content_output
-content_output = "/Game/MaterialVariants/"
-LevelVariantSets_output = "/Game/Variants/"
+content_output = "/Game/Create/MaterialVariants/"
+LevelVariantSets_output = "/Game/Create/Variants/"
 
 xml_data = ""
 with open(var_file, "r", encoding='utf-8-sig') as file:
@@ -36,7 +36,8 @@ if rttDocument.tag != 'rttDocument':
 	print('parse error: first node is not <rttDocument>')
 
 # for each material get the static mesh actors that are using it
-static_mesh_actors = [a for a in unreal.EditorLevelLibrary.get_all_level_actors() if a.__class__ == unreal.StaticMeshActor]
+actorSubsystem = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
+static_mesh_actors = [a for a in actorSubsystem.get_all_level_actors() if a.__class__ == unreal.StaticMeshActor]
 material_actors = {}
 for a in static_mesh_actors:
 	for m in a.static_mesh_component.get_materials():
@@ -50,7 +51,8 @@ asset_tools = unreal.AssetToolsHelpers.get_asset_tools()
 # lvs = unreal.VariantManagerLibrary.create_level_variant_sets_asset('LookVariants', LevelVariantSets_output)
 
 # use existing level variant set
-lvs = unreal.EditorAssetLibrary.load_asset(LevelVariantSets_output+'LevelVariantSets.LevelVariantSets')
+assetSubsystem = unreal.get_editor_subsystem(unreal.EditorAssetSubsystem)
+lvs = assetSubsystem.load_asset(LevelVariantSets_output+'LevelVariantSets')
 
 		
 # loop through all variants in the var file
@@ -100,11 +102,11 @@ for variant_switch in rttDocument.findall('./ProductAspects/AspectContainer/Aspe
 		# create new dummy material instance
 		variant_sanitized_name = unreal.PackageTools.sanitize_package_name(variant_name).replace(')', '_').replace('(', '_')
 		variant_path = content_output + variant_sanitized_name
-		if unreal.EditorAssetLibrary.does_asset_exist(variant_path):
-			material = unreal.EditorAssetLibrary.load_asset(variant_path)
+		if assetSubsystem.does_asset_exist(variant_path):
+			material = assetSubsystem.load_asset(variant_path)
 		else:
 			material = asset_tools.create_asset(variant_sanitized_name, content_output, unreal.MaterialInstanceConstant, unreal.MaterialInstanceConstantFactoryNew())
-			unreal.EditorAssetLibrary.save_loaded_asset(material)
+			assetSubsystem.save_loaded_asset(material)
 		# capture the actor material in the variant
 		for actor in actors:
 			unreal.VariantManagerLibrary.add_actor_binding(variant, actor)

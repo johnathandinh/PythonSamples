@@ -2,7 +2,7 @@ import unreal
 import os
  
 # content directory where assets will be stored
-content_folder = "/Game/JT/"
+content_folder = "/Game/Create/JT/"
  
 input_directory = "C:/temp/JT"
  
@@ -21,6 +21,10 @@ def count_jt_files_in_directory(directory):
  
 def process_directory(directory, parent_actor, slow_task):
     global file_index
+    global assetSubsystem
+    global levelSubsystem
+    actorSubsystem = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
+    
     jt_files = []
     item_list = os.listdir(directory)
     for item in item_list:
@@ -31,7 +35,7 @@ def process_directory(directory, parent_actor, slow_task):
         if os.path.isdir(item_full_path):
             # create a dummy actor for sub directories
             # no python access to the Empty Actor Factory, so we use Static Mesh Actor with no mesh
-            new_actor = unreal.EditorLevelLibrary.spawn_actor_from_class(unreal.StaticMeshActor, unreal.Vector(0, 0, 0), unreal.Rotator(0, 0, 0))
+            new_actor = actorSubsystem.spawn_actor_from_class(unreal.StaticMeshActor, unreal.Vector(0, 0, 0), unreal.Rotator(0, 0, 0))
             new_actor.root_component.set_editor_property("mobility", unreal.ComponentMobility.MOVABLE)
             new_actor.set_actor_label(item)
             new_actor.attach_to_actor(parent_actor, unreal.Name(), unreal.AttachmentRule.KEEP_WORLD, unreal.AttachmentRule.KEEP_WORLD, unreal.AttachmentRule.KEEP_WORLD, False)
@@ -46,7 +50,7 @@ def process_directory(directory, parent_actor, slow_task):
                 file_index = file_index + 1
                  
                 # if the directory already exists, it means we already processed it in a previous execution so we skip this file
-                if unreal.EditorAssetLibrary.does_directory_exist(asset_content_path):
+                if assetSubsystem.does_directory_exist(asset_content_path):
                     continue
  
                 # init datasmith CAD scene import from a CAD file and a target content directory
@@ -88,13 +92,13 @@ def process_directory(directory, parent_actor, slow_task):
                  
                 # save static meshes and materials assets
                 for static_mesh in result.imported_meshes:
-                    unreal.EditorAssetLibrary.save_loaded_asset(static_mesh)
+                    assetSubsystem.save_loaded_asset(static_mesh)
                     for i in range(static_mesh.get_num_sections(0)):
                         material_interface = static_mesh.get_material(i)
-                        unreal.EditorAssetLibrary.save_loaded_asset(material_interface)
+                        assetSubsystem.save_loaded_asset(material_interface)
  
                 # save level
-                saved_level = unreal.EditorLevelLibrary.save_all_dirty_levels()
+                saved_level = levelSubsystem.save_all_dirty_levels()
                 if not saved_level:
                     print("Error: Cannot save level")
     return
@@ -104,18 +108,20 @@ nb_jt_files = count_jt_files_in_directory(input_directory)
  
 # global variable
 file_index = 0
+assetSubsystem = unreal.get_editor_subsystem(unreal.EditorAssetSubsystem)
+levelSubsystem = unreal.get_editor_subsystem(unreal.LevelEditorSubsystem)
  
 # progress bar
 with unreal.ScopedSlowTask(nb_jt_files, "Data Preparation") as slow_task:
     slow_task.make_dialog(True)
  
     level_path = content_folder + "/ImportedLevel"
-    if unreal.EditorAssetLibrary.does_asset_exist(level_path):
+    if assetSubsystem.does_asset_exist(level_path):
         # if the level already exists, we just load it
-        unreal.EditorLevelLibrary.load_level(level_path)
+        levelSubsystem.load_level(level_path)
     else:
         # create a new level to hold the imported scene
-        created_new_level = unreal.EditorLevelLibrary.new_level_from_template(level_path, "/Engine/Maps/Templates/Template_Default")
+        created_new_level = levelSubsystem.new_level_from_template(level_path, "/Engine/Maps/Templates/Template_Default")
         if not created_new_level:
             print("Error: Cannot create new level")
             quit()

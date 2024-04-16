@@ -1,8 +1,11 @@
 import unreal
 
-sm = unreal.EditorAssetLibrary.load_asset("/game/gltf/test/SM_Drop")
+actorsubsystem = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
+assetsubsystem = unreal.get_editor_subsystem(unreal.EditorAssetSubsystem)
+layersubsystem = unreal.get_editor_subsystem(unreal.LayersSubsystem)
+sm = assetsubsystem.load_asset("/game/gltf/test/SM_Drop")
 
-world = unreal.EditorLevelLibrary.get_all_level_actors()[0].get_world()
+world = layersubsystem.get_world()
 posToTest = unreal.Vector(0,0,0)
 
 listOfObjectTypeQuery = unreal.Array(unreal.ObjectTypeQuery)
@@ -15,4 +18,4 @@ if hit != None:
     print(hit.to_tuple()[4])
     print(hit.to_tuple()[5])#impact_point
     print(hit.to_tuple()[6])
-    unreal.EditorLevelLibrary.spawn_actor_from_object(sm,hit.to_tuple()[5])
+    actorsubsystem.spawn_actor_from_object(sm,hit.to_tuple()[5])

@@ -2,7 +2,8 @@ import unreal
  
 ######### fill list of actors #########
 def get_selected():
-    return unreal.EditorLevelLibrary.get_selected_level_actors()
+    actor_subsys = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
+    return actor_subsys.get_selected_level_actors()
      
 selected_actors = get_selected()
 #filter to retain only static mesh actors
@@ -20,4 +21,5 @@ for sma in selected_static_mesh_actors:
     #edit the property
     sm.set_editor_property('light_map_resolution',1024)
     #save the modification of the related asset in the content folder
-    unreal.EditorAssetLibrary.save_asset(sm.get_path_name())
+    assetSubsystem = unreal.get_editor_subsystem(unreal.EditorAssetSubsystem)
+    assetSubsystem.save_loaded_asset(sm)

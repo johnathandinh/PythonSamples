@@ -3,7 +3,7 @@
 This folder contains some python samples to script the editor in Unreal Engine.
 
 The samples cover diverse functions of the editor: asset manipulation, data import, scene manipulation, etc. 
-The python API evolved over versions and is still prone to changes. Scripts stored in this repo have been tested on **4.26**.
+The python API evolves over versions and is still prone to changes. Files initially commited were working with UE 4.26.
 
 The examples are provided to illustrate usage of the API. No particular care was given to meet python coding standards or homogenize the coding styles from the different authors.
 

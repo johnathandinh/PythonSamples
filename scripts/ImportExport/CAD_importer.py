@@ -2,7 +2,7 @@ import unreal
  
 cad_file_path = "c:/temp/motor.3dxml"
  
-directory_name = "/Game/my_cad_assets/motor"
+directory_name = "/Game/Create/motor"
  
 datasmith_scene = unreal.DatasmithSceneElement.construct_datasmith_scene_from_file(cad_file_path)
  
